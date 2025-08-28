@@ -34,10 +34,9 @@ class LemlistMCPServer {
     this.setupErrorHandling();
   }
 
-  setupToolHandlers() {
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return {
-        tools: [
+  async getToolsList() {
+    return {
+      tools: [
           // === CAMPAIGN MANAGEMENT ===
           {
             name: 'get_campaigns',
@@ -748,11 +747,11 @@ class LemlistMCPServer {
             }
           }
         ]
-      };
-    });
+    };
+  }
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
+  async callTool(params) {
+    const { name, arguments: args } = params;
       
       try {
         let result;
@@ -976,6 +975,15 @@ class LemlistMCPServer {
           isError: true,
         };
       }
+  }
+
+  setupToolHandlers() {
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return await this.getToolsList();
+    });
+
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      return await this.callTool(request.params);
     });
   }
 
@@ -1186,13 +1194,14 @@ class LemlistMCPServer {
         
         try {
           if (method === 'tools/list') {
-            const response = await this.server.request({ method: 'tools/list' }, ListToolsRequestSchema);
+            // Directly call the tools list handler instead of using server.request
+            const toolsResponse = await this.getToolsList();
             console.log(`Tools list request - API Key: ${lemlistApiKey?.substring(0, 8)}...`);
-            console.log(`Tools count: ${response.tools?.length || 0}`);
-            res.json(response);
+            console.log(`Tools count: ${toolsResponse.tools?.length || 0}`);
+            res.json(toolsResponse);
           } else if (method === 'tools/call') {
-            const response = await this.server.request(params, CallToolRequestSchema);
-            res.json(response);
+            const toolResponse = await this.callTool(params);
+            res.json(toolResponse);
           } else {
             res.status(400).json({ error: 'Invalid method' });
           }
