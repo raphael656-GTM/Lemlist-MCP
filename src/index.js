@@ -1169,13 +1169,26 @@ class LemlistMCPServer {
           }
         }
 
+        // Get Lemlist API key from header (sent by proxy)
+        const lemlistApiKey = req.headers['x-lemlist-api-key'] || process.env.LEMLIST_API_KEY;
+        if (!lemlistApiKey) {
+          return res.status(400).json({ error: 'Lemlist API key required' });
+        }
+
+        // Create a temporary server instance with the user's API key
+        const tempServer = new LemlistMCPServer();
+        tempServer.lemlistClient = new LemlistClient({
+          apiKey: lemlistApiKey,
+        });
+        tempServer.setupToolHandlers();
+
         const { method, params } = req.body;
         
         if (method === 'tools/list') {
-          const response = await this.server.request({ method: 'tools/list' }, ListToolsRequestSchema);
+          const response = await tempServer.server.request({ method: 'tools/list' }, ListToolsRequestSchema);
           res.json(response);
         } else if (method === 'tools/call') {
-          const response = await this.server.request(params, CallToolRequestSchema);
+          const response = await tempServer.server.request(params, CallToolRequestSchema);
           res.json(response);
         } else {
           res.status(400).json({ error: 'Invalid method' });
