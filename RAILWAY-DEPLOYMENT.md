@@ -19,18 +19,14 @@ This guide shows you how to deploy the Lemlist MCP Server to Railway for multi-u
 1. **Connect Repository**
    ```bash
    # Clone the repository
-   git clone https://github.com/your-username/mcp-lemlist-server.git
-   cd mcp-lemlist-server
-   
-   # Push to your own repository
-   git remote set-url origin https://github.com/your-username/mcp-lemlist-server.git
-   git push -u origin main
+   git clone https://github.com/raphael656-GTM/Lemlist-MCP.git
+   cd Lemlist-MCP
    ```
 
 2. **Create Railway Project**
    - Go to [Railway Dashboard](https://railway.app/dashboard)
    - Click "New Project" → "Deploy from GitHub repo"
-   - Select your `mcp-lemlist-server` repository
+   - Select your `Lemlist-MCP` repository
    - Railway will auto-detect the configuration from `railway.json`
 
 3. **Configure Environment Variables**

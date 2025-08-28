@@ -41,8 +41,8 @@ A comprehensive Model Context Protocol (MCP) server for Lemlist.com integration,
 
 ```bash
 # 1. Clone and install
-git clone <repository-url>
-cd mcp-lemlist-server
+git clone https://github.com/raphael656-GTM/Lemlist-MCP.git
+cd Lemlist-MCP
 npm install
 
 # 2. Setup API key
