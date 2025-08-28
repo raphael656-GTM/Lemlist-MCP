@@ -25,8 +25,9 @@ class LemlistMCPServer {
       },
     });
 
+    // Initialize with placeholder client - will be replaced per request in HTTP mode
     this.lemlistClient = new LemlistClient({
-      apiKey: process.env.LEMLIST_API_KEY,
+      apiKey: process.env.LEMLIST_API_KEY || 'placeholder',
     });
 
     this.setupToolHandlers();
@@ -1175,23 +1176,31 @@ class LemlistMCPServer {
           return res.status(400).json({ error: 'Lemlist API key required' });
         }
 
-        // Create a temporary server instance with the user's API key
-        const tempServer = new LemlistMCPServer();
-        tempServer.lemlistClient = new LemlistClient({
+        // Temporarily update the client with the user's API key
+        const originalApiKey = this.lemlistClient.apiKey;
+        this.lemlistClient = new LemlistClient({
           apiKey: lemlistApiKey,
         });
-        tempServer.setupToolHandlers();
 
         const { method, params } = req.body;
         
-        if (method === 'tools/list') {
-          const response = await tempServer.server.request({ method: 'tools/list' }, ListToolsRequestSchema);
-          res.json(response);
-        } else if (method === 'tools/call') {
-          const response = await tempServer.server.request(params, CallToolRequestSchema);
-          res.json(response);
-        } else {
-          res.status(400).json({ error: 'Invalid method' });
+        try {
+          if (method === 'tools/list') {
+            const response = await this.server.request({ method: 'tools/list' }, ListToolsRequestSchema);
+            console.log(`Tools list request - API Key: ${lemlistApiKey?.substring(0, 8)}...`);
+            console.log(`Tools count: ${response.tools?.length || 0}`);
+            res.json(response);
+          } else if (method === 'tools/call') {
+            const response = await this.server.request(params, CallToolRequestSchema);
+            res.json(response);
+          } else {
+            res.status(400).json({ error: 'Invalid method' });
+          }
+        } finally {
+          // Restore original client (though this doesn't matter much for stateless requests)
+          this.lemlistClient = new LemlistClient({
+            apiKey: originalApiKey,
+          });
         }
       } catch (error) {
         console.error('MCP Request Error:', error);
