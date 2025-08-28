@@ -1,0 +1,75 @@
+{
+  "routing": {
+    "distributionTargets": {
+      "direct": 80,
+      "tier1": 15,
+      "tier2": 4,
+      "tier3": 1
+    },
+    "complexityThresholds": {
+      "direct": 3,
+      "tier1": 6,
+      "tier2": 8,
+      "tier3": 10
+    }
+  },
+  "specialists": {
+    "tier1": [
+      "architecture-generalist",
+      "security-generalist", 
+      "performance-generalist",
+      "data-generalist",
+      "integration-generalist",
+      "frontend-generalist"
+    ],
+    "tier2": [
+      "database-specialist",
+      "api-design-specialist",
+      "auth-systems-specialist", 
+      "performance-optimization-specialist",
+      "ml-integration-specialist",
+      "testing-strategy-specialist"
+    ],
+    "tier3": [
+      "system-architect",
+      "integration-architect",
+      "scale-architect",
+      "security-architect",
+      "data-architect", 
+      "governance-architect"
+    ]
+  },
+  "quality": {
+    "validationCheckpoints": true,
+    "consistencyVerification": true,
+    "performanceTracking": true,
+    "continuousImprovement": true
+  },
+  "context": {
+    "storageEnabled": true,
+    "learningEnabled": true,
+    "cacheExpiration": "24h",
+    "patternRecognition": true
+  },
+  "recovery": {
+    "errorDetection": true,
+    "autoEscalation": true,
+    "feedbackIntegration": true,
+    "learningUpdates": true
+  },
+  "lemlist": {
+    "domain": "email-marketing",
+    "primarySpecialists": [
+      "integration-generalist",
+      "api-design-specialist",
+      "data-generalist"
+    ],
+    "complexityFactors": {
+      "campaignManagement": 4,
+      "leadGeneration": 3,
+      "emailSequencing": 5,
+      "analyticsIntegration": 6,
+      "bulkOperations": 7
+    }
+  }
+}
