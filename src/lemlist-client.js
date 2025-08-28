@@ -18,7 +18,10 @@ export class LemlistClient {
       baseURL: this.baseURL,
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': this.apiKey
+      },
+      auth: {
+        username: '',
+        password: this.apiKey
       },
       timeout: 30000
     });
