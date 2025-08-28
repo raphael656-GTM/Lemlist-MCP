@@ -41,21 +41,16 @@
       },
       {
         "id": "lemlist-api-integration",
-        "decision": "Complete Lemlist.com API integration with 25+ endpoints",
-        "rationale": "Comprehensive coverage of all Lemlist functionality",
-        "endpoints": [
-          "get_campaigns", "get_campaign", "create_campaign", "update_campaign", "delete_campaign",
-          "get_leads", "add_lead", "bulk_add_leads", "update_lead", "delete_lead",
-          "get_unsubscribes", "add_to_unsubscribes", "remove_from_unsubscribes", "unsubscribe_from_campaign",
-          "get_activities_with_filters", "get_activity_types", "get_grouped_activities",
-          "create_webhook", "get_webhooks", "update_webhook", "delete_webhook",
-          "search_leads_advanced", "search_campaigns",
-          "get_detailed_campaign_stats", "get_multi_campaign_stats",
-          "enrich_lead", "bulk_enrich_leads",
-          "export_leads", "validate_lead_data",
-          "health_check", "get_rate_limit_status"
+        "decision": "Complete Lemlist.com API integration with LinkedIn URL extraction focus",
+        "rationale": "Real LinkedIn URL retrieval using Lemlist's waterfall enrichment system - NO pattern generation",
+        "primaryEndpoints": [
+          "get_campaigns", "add_lead", "enrich_lead", "get_enriched_lead_data"
         ],
-        "authentication": "X-API-KEY header",
+        "linkedinFocusedMethods": [
+          "searchAndEnrichPerson", "enrichLeadWithLinkedIn", "getEnrichedLeadData", "searchPersonByName"
+        ],
+        "realDataOnly": "CRITICAL: Only fetches actual LinkedIn URLs from lead_linkedin_url field - NO pattern generation or guessing",
+        "authentication": "Basic Auth (empty username, API key as password) - FIXED from incorrect X-API-KEY header format",
         "implemented": true
       },
       {
@@ -70,6 +65,19 @@
           "rate-limiting"
         ],
         "qualityScore": "A+ (95%+)",
+        "implemented": true
+      },
+      {
+        "id": "linkedin-url-extraction-system",
+        "decision": "Real LinkedIn URL extraction via Lemlist waterfall enrichment",
+        "rationale": "Only fetch actual LinkedIn URLs - some have unique identifiers (b02781193), some don't",
+        "workflow": [
+          "create-lead-with-unique-timestamp-email",
+          "initiate-linkedin-enrichment",
+          "retrieve-lead_linkedin_url-field",
+          "return-actual-profile-url"
+        ],
+        "criticalNote": "LinkedIn URLs vary: linkedin.com/in/name vs linkedin.com/in/name-numbers123456",
         "implemented": true
       },
       {
@@ -154,11 +162,11 @@
         "complexity": 5
       },
       "recommendation": {
-        "approach": "comprehensive-api-integration",
-        "implementation": "25+ endpoints with sub-agent architecture",
-        "technologies": ["axios", "express", "mcp-sdk"],
-        "qualityChecks": ["error-handling", "rate-limiting", "security-validation"],
-        "confidence": 0.95
+        "approach": "linkedin-enrichment-focused-integration",
+        "implementation": "Lead creation + enrichment workflow for real LinkedIn URLs",
+        "technologies": ["axios", "express", "mcp-sdk", "lemlist-waterfall-enrichment"],
+        "qualityChecks": ["real-data-only-validation", "no-pattern-generation", "unique-identifier-handling"],
+        "confidence": 0.98
       },
       "outcome": {
         "successful": true,

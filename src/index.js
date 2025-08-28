@@ -642,43 +642,87 @@ class LemlistMCPServer {
             }
           },
 
-          // === LEAD ENRICHMENT ===
+          // === LINKEDIN ENRICHMENT ===
           {
-            name: 'enrich_lead',
-            description: 'Enrich lead data with additional information',
+            name: 'search_database_for_linkedin',
+            description: 'Search Lemlist database directly for LinkedIn URLs (faster than enrichment)',
             inputSchema: {
               type: 'object',
               properties: {
-                email: {
-                  type: 'string',
-                  description: 'Lead email address',
-                  required: true
+                filters: {
+                  type: 'array',
+                  description: 'Array of filter objects with filterId, in, and out properties',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      filterId: { type: 'string', description: 'Filter field (country, industry, etc.)' },
+                      in: { type: 'array', description: 'Values to include' },
+                      out: { type: 'array', description: 'Values to exclude' }
+                    }
+                  },
+                  default: []
                 },
-                enrichmentOptions: {
-                  type: 'object',
-                  description: 'Enrichment options'
+                page: {
+                  type: 'number',
+                  description: 'Page number for results',
+                  default: 1
                 }
-              },
-              required: ['email']
+              }
             }
           },
           {
-            name: 'bulk_enrich_leads',
-            description: 'Enrich multiple leads in bulk',
+            name: 'search_and_enrich_person',
+            description: 'Search for a person and get their real LinkedIn URL via Lemlist enrichment',
             inputSchema: {
               type: 'object',
               properties: {
-                emails: {
-                  type: 'array',
-                  description: 'Array of email addresses',
-                  items: { type: 'string' }
+                firstName: {
+                  type: 'string',
+                  description: 'First name of the person',
+                  required: true
                 },
-                enrichmentOptions: {
-                  type: 'object',
-                  description: 'Enrichment options'
+                lastName: {
+                  type: 'string',
+                  description: 'Last name of the person',
+                  required: true
+                },
+                companyDomain: {
+                  type: 'string',
+                  description: 'Company domain (e.g., hyro.ai)',
+                  required: true
                 }
               },
-              required: ['emails']
+              required: ['firstName', 'lastName', 'companyDomain']
+            }
+          },
+          {
+            name: 'enrich_lead_linkedin',
+            description: 'Enrich an existing lead with real LinkedIn URL',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                leadId: {
+                  type: 'string',
+                  description: 'Lead ID to enrich',
+                  required: true
+                }
+              },
+              required: ['leadId']
+            }
+          },
+          {
+            name: 'get_enriched_lead_data',
+            description: 'Get the enriched lead data including real LinkedIn URL',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                leadId: {
+                  type: 'string',
+                  description: 'Lead ID to check for enrichment data',
+                  required: true
+                }
+              },
+              required: ['leadId']
             }
           },
 
@@ -896,18 +940,26 @@ class LemlistMCPServer {
             result = await this.lemlistClient.getMultiCampaignStats(args.campaignIds, args);
             break;
 
-          // Lead Enrichment
-          case 'enrich_lead':
-            result = await this.lemlistClient.enrichLead(args.email, args.enrichmentOptions);
+          // LinkedIn Enrichment
+          case 'search_database_for_linkedin':
+            result = await this.lemlistClient.searchPeople(args.filters || [], args.page || 1);
             break;
 
-          case 'bulk_enrich_leads':
-            result = await this.lemlistClient.bulkEnrichLeads(args.emails, args.enrichmentOptions);
+          case 'search_and_enrich_person':
+            result = await this.lemlistClient.searchAndEnrichPerson(args.firstName, args.lastName, args.companyDomain);
+            break;
+
+          case 'enrich_lead_linkedin':
+            result = await this.lemlistClient.enrichLeadWithLinkedIn(args.leadId);
+            break;
+
+          case 'get_enriched_lead_data':
+            result = await this.lemlistClient.getEnrichedLeadData(args.leadId);
             break;
 
           // Import/Export
           case 'export_leads':
-            result = await this.lemlistClient.exportLeads(args.campaignId, args.format);
+            result = await this.lemlistClient.exportLeads(args.campaignId, args);
             break;
 
           case 'validate_lead_data':
